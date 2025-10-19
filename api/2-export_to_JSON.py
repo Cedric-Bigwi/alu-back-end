@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Export employee TODO data to JSON format.
+Export employee TODO list data from a REST API to JSON format.
 """
 import json
 import requests
@@ -9,23 +9,24 @@ import sys
 
 if __name__ == "__main__":
     emp_id = int(sys.argv[1])
-    user_url = f"https://jsonplaceholder.typicode.com/users/{emp_id}"
-    todos_url = f"https://jsonplaceholder.typicode.com/users/{emp_id}/todos"
+    base_url = "https://jsonplaceholder.typicode.com/users"
+    user_url = f"{base_url}/{emp_id}"
+    todos_url = f"{base_url}/{emp_id}/todos"
 
     user = requests.get(user_url).json()
     todos = requests.get(todos_url).json()
 
-    username = user.get("username")
-    filename = f"{emp_id}.json"
+    emp_username = user.get("username")
+    tasks_list = []
 
-    tasks = []
     for task in todos:
-        tasks.append({
+        tasks_list.append({
             "task": task.get("title"),
             "completed": task.get("completed"),
-            "username": username
+            "username": emp_username
         })
 
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump({str(emp_id): tasks}, f)
+    data = {str(emp_id): tasks_list}
 
+    with open(f"{emp_id}.json", "w") as json_file:
+        json.dump(data, json_file)
